@@ -19,7 +19,6 @@ from PyQt5.QtGui import QIcon  # 아이콘 넣기
 from PyQt5.QtWidgets import QFileDialog  # 파일 경로 설정
 from PyQt5.QtWidgets import QWidget
 
-
 class Ui_MainWindow(QWidget):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -213,7 +212,7 @@ class Ui_MainWindow(QWidget):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
         # =====================================================================#
-        MainWindow.setWindowIcon(QIcon('myang.png'))
+        #MainWindow.setWindowIcon(QIcon('.png'))
 
         self.OPEN_1.clicked.connect(self.pushOpen_1)
         self.OPEN_2.clicked.connect(self.pushOpen_2)
@@ -233,8 +232,8 @@ class Ui_MainWindow(QWidget):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "UTAU customizer 1.0"))
-        self.utau.setText(_translate("MainWindow", "문의     ▶     0510jian@gmail.com"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "UTAU customizer 1.1"))
+        self.utau.setText(_translate("MainWindow", "  contact     ▶     0510jian@gmail.com"))
         self.label_2.setText(_translate("MainWindow", "변경할 UST 파일"))
         self.OPEN_1.setText(_translate("MainWindow", "UST 파일 선택"))
         self.label_3.setText(_translate("MainWindow", "변경 후 저장할 파일명"))
@@ -262,10 +261,10 @@ class Ui_MainWindow(QWidget):
         self.label_13.setText(_translate("MainWindow", "복사본을 만들어주세요"))
         self.label_12.setText(_translate("MainWindow", "변경되는 형식이니, 반드시 사전에"))
         self.OPEN_3.setText(_translate("MainWindow", "폴더 선택"))
-        self.label_15.setText(_translate("MainWindow", "잠시 기다려주세요 ✧*.◟(ˊ▽ˋ)◞.*✧"))
+        self.label_15.setText(_translate("MainWindow", "잠시 기다려 주세요 ✧*.◟(ˊ▽ˋ)◞.*✧"))
         self.to_crazy_1.setText(_translate("MainWindow", "히라가나(あ) → 뷁어(궇)"))
         self.to_hiragana_1.setText(_translate("MainWindow", "뷁어(궇) → 히라가나(あ)"))
-        self.label_9.setText(_translate("MainWindow", "변경할 확장자(ex.wav, frq)"))
+        self.label_9.setText(_translate("MainWindow", "변경할 확장자(ex.wav/frq)"))
         self.QUIT_3.setText(_translate("MainWindow", "프로그램 종료"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_3), _translate("MainWindow", "파일명 변환"))
         self.label_10.setText(_translate("MainWindow", "변경할 oto 파일"))
@@ -276,7 +275,6 @@ class Ui_MainWindow(QWidget):
         self.label_16.setText(_translate("MainWindow", "변경 후 저장할 파일명"))
         self.tabWidget_2.setTabText(self.tabWidget_2.indexOf(self.tab_4), _translate("MainWindow", "oto.ini 변환"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.convert), _translate("MainWindow", "궇↔あ"))
-
 
     def pushOpen_1(self): #파일 선택
         inFname = QFileDialog.getOpenFileName(self.length, 'Open file', '', 'UST파일(*.ust)')
@@ -295,278 +293,195 @@ class Ui_MainWindow(QWidget):
         inFname = QFileDialog.getOpenFileName(self.alias, 'Open file', '', 'oto.ini파일(*.ini)')
         self.ADDRESS_4.setText(inFname[0])
 
+    # 노트 길이 변환
     def start_1(self):
-        outFname = str(self.SAVE_NAME_1.text())
+        # 입력값(파일이름, 조절길이) 가져오기
+        inputFn = str(self.ADDRESS_1.toPlainText())
+        outputFn = str(self.SAVE_NAME_1.text())
+        inputLength = float(self.LENGTH_1.text())
 
-        if '.ust' in outFname:
-            pass
-        else:
-            outFname += '.ust'
+        # .ust 확장자 붙이기
+        if ".ust" not in outputFn :
+            outputFn += ".ust"
 
-        LENGTH = float(self.LENGTH_1.text())
-        inFname = str(self.ADDRESS_1.toPlainText())
+        inputFp = open(inputFn, 'r')
+        outputFp = open(outputFn, 'w')
 
-        inFp = open(inFname, 'r')
-        outFp = open(outFname, 'w')
-
+        # 길이 변환 과정
         while True:
-            inStr = inFp.readline()
-            if not inStr:
+            # 한 줄씩 읽기
+            inputStr = inputFp.readline()
+            if not inputStr:
                 break
 
-            if 'Tempo=' in inStr:
-                tempo, tempoNum = inStr.split('=')
-                finalTempo = float(tempoNum) * LENGTH
-                out = 'Tempo=' + str(finalTempo) + '\n'
-                outFp.write(out)
-            elif 'Length=' in inStr:
-                length, lengthNum = inStr.split('=')
-                finalLength = float(lengthNum) * LENGTH
-                out = 'Length=' + str(finalLength) + '\n'
-                outFp.write(out)
+            # 템포 변경
+            if 'Tempo=' in inputStr:
+                tempo = inputStr.split('=')
+                convertTempo = float(tempo[1]) * inputLength
+                output = 'Tempo=' + str(convertTempo) + '\n'
+                outputFp.write(output)
+
+            # 길이 변경
+            elif 'Length=' in inputStr:
+                length = inputStr.split('=')
+                convertLength = float(length[1]) * inputLength
+                output = 'Length=' + str(convertLength) + '\n'
+                outputFp.write(output)
+
+            # 그 외(변환 X)
             else:
-                outFp.write(inStr)
+                outputFp.write(inputStr)
 
-        inFp.close()
-        outFp.close()
+        inputFp.close()
+        outputFp.close()
 
+    # 에일리어스 수정
     def start_2(self):
-        outFname = str(self.SAVE_NAME_2.text())
+        inputFn = str(self.ADDRESS_2.toPlainText())
+        outputFn = str(self.SAVE_NAME_2.text())
 
-        if '.ini' in outFname:
-            pass
-        else:
-            outFname += '.ini'
+        # .ini 확장자 추가
+        if '.ini' not in outputFn:
+            outputFn += '.ini'
 
-        inFname = str(self.ADDRESS_2.toPlainText())
+        inputFp = open(inputFn, 'r')
+        outputFp = open(outputFn, 'w')
 
-        inFp = open(inFname, 'r')
-        outFp = open(outFname, 'w')
+        while True:
+            inputStr = inputFp.readline()
+            if not inputStr:
+                break
 
-        if self.N_BUTTON_2.isChecked():
-            alias = str(self.N_ALIAS.text())
+            # inputStr 분리
+            reclist, oto = inputStr.split('=')
+            al, num1, num2, num3, num4, num5 = oto.split(',')
 
-            while True:
-                inStr = inFp.readline()
-                if not inStr:
-                    break
+            # 에일리어스 생성
+            if self.N_BUTTON_2.isChecked() :
+                alias = str(self.N_ALIAS.text())
+                finalAlias = al + alias
 
-                reclist, oto = inStr.split('=')
-                ali, num1, num2, num3, num4, num5 = oto.split(',')
+            # 에일리어스 변경
+            elif self.C_BUTTON_2.isChecked() :
+                privAlias = str(self.C_ALIAS1.text())
+                newAlias = str(self.C_ALIAS2.text())
 
-                final_alias = ali + alias
-                out = reclist + '=' + final_alias + ',' + num1 + ',' + num2 + ',' + num3 + ',' + num4 + ',' + num5
-                outFp.write(out)
+                if privAlias in al: # 해당 에일리어스 있음
+                    finalAlias = al.replace(privAlias, newAlias)
+                else: # 해당 에일리어스 없음
+                    finalAlias = al
 
-        elif self.C_BUTTON_2.isChecked():
-            alias = str(self.C_ALIAS1.text())
-            new_alias = str(self.C_ALIAS2.text())
+            # 에일리어스 삭제
+            elif self.D_BUTTON_2.isChecked() :
+                alias = str(self.D_ALIAS.text())
+                if alias in al: # 해당 에일리어스 있음
+                    finalAlias = al.replace(alias, '')
+                else: # 해당 에일리어스 없음
+                    finalAlias = al
 
-            while True:
-                inStr = inFp.readline()
-                if not inStr:
-                    break
+            output = reclist + '=' + finalAlias + ',' + num1 + ',' + num2 + ',' + num3 + ',' + num4 + ',' + num5
+            outputFp.write(output)
 
-                reclist, oto = inStr.split('=')
-                ali, num1, num2, num3, num4, num5 = oto.split(',')
+        inputFp.close()
+        outputFp.close()
 
-                if alias in ali:
-                    final_alias = ali.replace(alias, new_alias)
-                else:
-                    final_alias = ali
-
-                out = reclist + '=' + final_alias + ',' + num1 + ',' + num2 + ',' + num3 + ',' + num4 + ',' + num5
-                outFp.write(out)
-
-        elif self.D_BUTTON_2.isChecked():
-            alias = str(self.D_ALIAS.text())
-
-            while True:
-                inStr = inFp.readline()
-                if not inStr:
-                    break
-
-                reclist, oto = inStr.split('=')
-                ali, num1, num2, num3, num4, num5 = oto.split(',')
-
-                if alias in ali:
-                    final_alias = ali.replace(alias, '')
-                else:
-                    final_alias = ali
-
-                out = reclist + '=' + final_alias + ',' + num1 + ',' + num2 + ',' + num3 + ',' + num4 + ',' + num5
-                outFp.write(out)
-
-        inFp.close()
-        outFp.close()
-
+    # 파일명 변환 to 뷁어
     def start_3_to_crazy(self):
-        inFname = str(self.ADDRESS_3.toPlainText())
-        TYPE = str(self.SAVE_NAME_3.text())
-        if '.' in TYPE:
-            TYPE = TYPE.replace('.', '')
-        ROOT = inFname + '/*.' + TYPE
+        self.myConvertFilename("japanese to break")
 
-        B = ['궇', '궋', '궎', '궑', '궓', '궆', '궊', '궍', '궏', '궒', '궔', '궖', '궘', '궚', '궞',
-             '궕', '궗', '궙', '궛', '궟', '궠', '궢', '궥', '궧', '궩', '궡', '궣', '궦', '궨', '궪',
-             '궫', '궭', '궰', '궲', '궴', '궬', '궮', '궱', '궳', '궵', '궶', '궸', '궹', '궺', '궻',
-             '궼', '궿', '귅', '귉', '귌', '궽', '귂', '귆', '귊', '귍', '궾', '귃', '귇', '귋', '귎',
-             '귏', '귒', '귔', '귕', '귖', '귘', '귚', '귝', '귗', '귙', '귛', '귞', '귟', '귡', '귢', '귣',
-             '귦', '귧', '귨', '귩', '귪', '궯', '귥',
-             '귺', '귻', '귽', '귾', '긂', '긃', '긄', '긅', '긆', '긇', '긊', '긌', '긎', '긏', '긐',
-             '긑', '긒', '긓', '긕', '긖', '긗', '긘', '긙', '긚', '긛', '긜', '긝', '긞', '긟', '긠',
-             '긡', '긢', '긣', '긤', '긥', '긦', '긧', '긨', '긩', '긪', '긫', '긬', '긭', '긮', '긯',
-             '긲', '긳', '긵', '긶', '긹', '긻', '긼', '긽', '긾', '긿', '깂', '깄', '깇', '깈', '깉',
-             '깋', '깏', '깑', '깒', '깓', '깕', '깗', '깘', '깙', '깚', '깛', '깞', '깢', '깣', '뫃']
-        H = ['あ', 'い', 'う', 'え', 'お', 'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'か', 'き', 'く', 'け', 'こ',
-             'が', 'ぎ', 'ぐ', 'げ', 'ご', 'さ', 'し', 'す', 'せ', 'そ', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ',
-             'た', 'ち', 'つ', 'て', 'と', 'だ', 'ぢ', 'づ', 'で', 'ど', 'な', 'に', 'ぬ', 'ね', 'の',
-             'は', 'ひ', 'ふ', 'へ', 'ほ', 'ば', 'び', 'ぶ', 'べ', 'ぼ', 'ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ',
-             'ま', 'み', 'む', 'め', 'も', 'や', 'ゆ', 'よ', 'ゃ', 'ゅ', 'ょ', 'ら', 'り', 'る', 'れ', 'ろ',
-             'わ', 'ゐ', 'ゑ', 'を', 'ん', 'っ', 'ゎ',
-             'ア', 'ィ', 'イ', 'ゥ', 'ウ', 'ェ', 'エ', 'ォ', 'オ', 'カ', 'ガ', 'キ', 'ギ', 'ク', 'グ',
-             'ケ', 'ゲ', 'コ', 'ゴ', 'サ', 'ザ', 'シ', 'ジ', 'ス', 'ズ', 'セ', 'ヂ', 'ッ', 'ツ', 'ヅ',
-             'テ', 'デ', 'ト', 'ド', 'ナ', 'ニ', 'ヌ', 'ネ', 'ノ', 'ハ', 'バ', 'パ', 'ヒ', 'ビ', 'ピ',
-             'フ', 'ブ', 'プ', 'ヘ', 'ベ', 'ペ', 'ホ', 'メ', 'モ', 'ャ', 'ヤ', 'ュ', 'ユ', 'ョ', 'ヨ',
-             'ラ', 'リ', 'ル', 'レ', 'ロ', 'ヮ', 'ワ', 'ヰ', 'ヱ', 'ヲ', 'ン', 'ヴ', 'ヵ', 'ヶ', '息']
-
-        for i in range(158):
-            fpath = ROOT
-
-            for fpath in glob.glob(fpath):
-                fpath_r = fpath.replace(H[i], B[i])
-                os.rename(fpath, fpath_r)
-
+    # 파일명 변환 to 일본어
     def start_3_to_hiragana(self):
-        inFname = str(self.ADDRESS_3.toPlainText())
-        TYPE = str(self.SAVE_NAME_3.text())
-        if '.' in TYPE:
-            TYPE = TYPE.replace('.', '')
-        ROOT = inFname + '/*.' + TYPE
+        self.myConvertFilename("break to japanese")
 
-        B = ['궇', '궋', '궎', '궑', '궓', '궆', '궊', '궍', '궏', '궒', '궔', '궖', '궘', '궚', '궞',
-             '궕', '궗', '궙', '궛', '궟', '궠', '궢', '궥', '궧', '궩', '궡', '궣', '궦', '궨', '궪',
-             '궫', '궭', '궰', '궲', '궴', '궬', '궮', '궱', '궳', '궵', '궶', '궸', '궹', '궺', '궻',
-             '궼', '궿', '귅', '귉', '귌', '궽', '귂', '귆', '귊', '귍', '궾', '귃', '귇', '귋', '귎',
-             '귏', '귒', '귔', '귕', '귖', '귘', '귚', '귝', '귗', '귙', '귛', '귞', '귟', '귡', '귢', '귣',
-             '귦', '귧', '귨', '귩', '귪', '궯', '귥',
-             '귺', '귻', '귽', '귾', '긂', '긃', '긄', '긅', '긆', '긇', '긊', '긌', '긎', '긏', '긐',
-             '긑', '긒', '긓', '긕', '긖', '긗', '긘', '긙', '긚', '긛', '긜', '긝', '긞', '긟', '긠',
-             '긡', '긢', '긣', '긤', '긥', '긦', '긧', '긨', '긩', '긪', '긫', '긬', '긭', '긮', '긯',
-             '긲', '긳', '긵', '긶', '긹', '긻', '긼', '긽', '긾', '긿', '깂', '깄', '깇', '깈', '깉',
-             '깋', '깏', '깑', '깒', '깓', '깕', '깗', '깘', '깙', '깚', '깛', '깞', '깢', '깣', '뫃']
-        H = ['あ', 'い', 'う', 'え', 'お', 'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'か', 'き', 'く', 'け', 'こ',
-             'が', 'ぎ', 'ぐ', 'げ', 'ご', 'さ', 'し', 'す', 'せ', 'そ', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ',
-             'た', 'ち', 'つ', 'て', 'と', 'だ', 'ぢ', 'づ', 'で', 'ど', 'な', 'に', 'ぬ', 'ね', 'の',
-             'は', 'ひ', 'ふ', 'へ', 'ほ', 'ば', 'び', 'ぶ', 'べ', 'ぼ', 'ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ',
-             'ま', 'み', 'む', 'め', 'も', 'や', 'ゆ', 'よ', 'ゃ', 'ゅ', 'ょ', 'ら', 'り', 'る', 'れ', 'ろ',
-             'わ', 'ゐ', 'ゑ', 'を', 'ん', 'っ', 'ゎ',
-             'ア', 'ィ', 'イ', 'ゥ', 'ウ', 'ェ', 'エ', 'ォ', 'オ', 'カ', 'ガ', 'キ', 'ギ', 'ク', 'グ',
-             'ケ', 'ゲ', 'コ', 'ゴ', 'サ', 'ザ', 'シ', 'ジ', 'ス', 'ズ', 'セ', 'ヂ', 'ッ', 'ツ', 'ヅ',
-             'テ', 'デ', 'ト', 'ド', 'ナ', 'ニ', 'ヌ', 'ネ', 'ノ', 'ハ', 'バ', 'パ', 'ヒ', 'ビ', 'ピ',
-             'フ', 'ブ', 'プ', 'ヘ', 'ベ', 'ペ', 'ホ', 'メ', 'モ', 'ャ', 'ヤ', 'ュ', 'ユ', 'ョ', 'ヨ',
-             'ラ', 'リ', 'ル', 'レ', 'ロ', 'ヮ', 'ワ', 'ヰ', 'ヱ', 'ヲ', 'ン', 'ヴ', 'ヵ', 'ヶ', '息']
-
-        for i in range(158):
-            fpath = ROOT
-
-            for fpath in glob.glob(fpath):
-                fpath_r = fpath.replace(B[i], H[i])
-                os.rename(fpath, fpath_r)
-
+    # oto 변환 to 뷁어
     def start_4_to_crazy(self):
-        inFname = str(self.ADDRESS_4.toPlainText())
-        outFname = str(self.SAVE_NAME_4.text())
+        self.myConvertOto("japanese to break")
 
-        if '.ini' in outFname:
-            pass
-        else:
-            outFname += '.ini'
-
-        inFp = open(inFname, 'r')
-        outFp = open(outFname, 'w')
-
-        B = ['궇', '궋', '궎', '궑', '궓', '궆', '궊', '궍', '궏', '궒', '궔', '궖', '궘', '궚', '궞',
-             '궕', '궗', '궙', '궛', '궟', '궠', '궢', '궥', '궧', '궩', '궡', '궣', '궦', '궨', '궪',
-             '궫', '궭', '궰', '궲', '궴', '궬', '궮', '궱', '궳', '궵', '궶', '궸', '궹', '궺', '궻',
-             '궼', '궿', '귅', '귉', '귌', '궽', '귂', '귆', '귊', '귍', '궾', '귃', '귇', '귋', '귎',
-             '귏', '귒', '귔', '귕', '귖', '귘', '귚', '귝', '귗', '귙', '귛', '귞', '귟', '귡', '귢', '귣',
-             '귦', '귧', '귨', '귩', '귪', '궯', '귥',
-             '귺', '귻', '귽', '귾', '긂', '긃', '긄', '긅', '긆', '긇', '긊', '긌', '긎', '긏', '긐',
-             '긑', '긒', '긓', '긕', '긖', '긗', '긘', '긙', '긚', '긛', '긜', '긝', '긞', '긟', '긠',
-             '긡', '긢', '긣', '긤', '긥', '긦', '긧', '긨', '긩', '긪', '긫', '긬', '긭', '긮', '긯',
-             '긲', '긳', '긵', '긶', '긹', '긻', '긼', '긽', '긾', '긿', '깂', '깄', '깇', '깈', '깉',
-             '깋', '깏', '깑', '깒', '깓', '깕', '깗', '깘', '깙', '깚', '깛', '깞', '깢', '깣', '뫃']
-        H = ['あ', 'い', 'う', 'え', 'お', 'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'か', 'き', 'く', 'け', 'こ',
-             'が', 'ぎ', 'ぐ', 'げ', 'ご', 'さ', 'し', 'す', 'せ', 'そ', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ',
-             'た', 'ち', 'つ', 'て', 'と', 'だ', 'ぢ', 'づ', 'で', 'ど', 'な', 'に', 'ぬ', 'ね', 'の',
-             'は', 'ひ', 'ふ', 'へ', 'ほ', 'ば', 'び', 'ぶ', 'べ', 'ぼ', 'ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ',
-             'ま', 'み', 'む', 'め', 'も', 'や', 'ゆ', 'よ', 'ゃ', 'ゅ', 'ょ', 'ら', 'り', 'る', 'れ', 'ろ',
-             'わ', 'ゐ', 'ゑ', 'を', 'ん', 'っ', 'ゎ',
-             'ア', 'ィ', 'イ', 'ゥ', 'ウ', 'ェ', 'エ', 'ォ', 'オ', 'カ', 'ガ', 'キ', 'ギ', 'ク', 'グ',
-             'ケ', 'ゲ', 'コ', 'ゴ', 'サ', 'ザ', 'シ', 'ジ', 'ス', 'ズ', 'セ', 'ヂ', 'ッ', 'ツ', 'ヅ',
-             'テ', 'デ', 'ト', 'ド', 'ナ', 'ニ', 'ヌ', 'ネ', 'ノ', 'ハ', 'バ', 'パ', 'ヒ', 'ビ', 'ピ',
-             'フ', 'ブ', 'プ', 'ヘ', 'ベ', 'ペ', 'ホ', 'メ', 'モ', 'ャ', 'ヤ', 'ュ', 'ユ', 'ョ', 'ヨ',
-             'ラ', 'リ', 'ル', 'レ', 'ロ', 'ヮ', 'ワ', 'ヰ', 'ヱ', 'ヲ', 'ン', 'ヴ', 'ヵ', 'ヶ', '息']
-
-        while True:
-            inStr = inFp.readline()
-            if not inStr:
-                break
-
-            for i in range(158):
-                inStr = inStr.replace(H[i], B[i])
-
-            outFp.write(inStr)
-
+    # oto 변환 to 일본어
     def start_4_to_hiragana(self):
-        inFname = str(self.ADDRESS_4.toPlainText())
-        outFname = str(self.SAVE_NAME_4.text())
+        self.myConvertOto("break to japanese")
 
-        if '.ini' in outFname:
+    # 폴더 내 파일 뷁어 <-> 일본어 변환
+    def myConvertFilename(self, select):
+        # 변환하고싶은 폴더 위치
+        inputLocation = str(self.ADDRESS_3.toPlainText())
+
+        # 변환하고싶은 확장자
+        inputExtension = str(self.SAVE_NAME_3.text())
+        extensions = inputExtension.split("/")
+
+        # '.' 삭제
+        for extension in extensions:
+            extension = extension.replace(".", "")
+
+        # 파일명 변환 과정
+        for extension in extensions:
+            location = inputLocation + "/*."
+
+            for fn in glob.glob(location + extension):
+                try :
+                    # 기존 파일명(일본어)
+                    fnOriginal = fn
+
+                    # 코덱 변환
+                    if (select == "japanese to break"):
+                        fnConverted = self.myConvertCodec("shift-jis", "cp949", fn)
+
+                    elif (select == "break to japanese"):
+                        fnConverted = self.myConvertCodec("cp949", "shift-jis", fn)
+
+                    # 파일명 변환
+                    os.rename(fnOriginal, fnConverted)
+
+                except :
+                    pass
+
+    # oto파일값을 뷁어 <-> 일본어 변환
+    def myConvertOto(self, select):
+
+        # 변환하고 싶은 파일
+        inputFn = str(self.ADDRESS_4.toPlainText())
+        outputFn = str(self.SAVE_NAME_4.text())
+
+        # outputFn에 .ini 없을 시 추가
+        if '.ini' in outputFn:
             pass
         else:
-            outFname += '.ini'
+            outputFn += '.ini'
 
-        inFp = open(inFname, 'r')
-        outFp = open(outFname, 'w')
+        # inputFn, outputFn 열기
+        inputFp = open(inputFn, 'r')
+        outputFp = open(outputFn, 'w')
 
-        B = ['궇', '궋', '궎', '궑', '궓', '궆', '궊', '궍', '궏', '궒', '궔', '궖', '궘', '궚', '궞',
-             '궕', '궗', '궙', '궛', '궟', '궠', '궢', '궥', '궧', '궩', '궡', '궣', '궦', '궨', '궪',
-             '궫', '궭', '궰', '궲', '궴', '궬', '궮', '궱', '궳', '궵', '궶', '궸', '궹', '궺', '궻',
-             '궼', '궿', '귅', '귉', '귌', '궽', '귂', '귆', '귊', '귍', '궾', '귃', '귇', '귋', '귎',
-             '귏', '귒', '귔', '귕', '귖', '귘', '귚', '귝', '귗', '귙', '귛', '귞', '귟', '귡', '귢', '귣',
-             '귦', '귧', '귨', '귩', '귪', '궯', '귥',
-             '귺', '귻', '귽', '귾', '긂', '긃', '긄', '긅', '긆', '긇', '긊', '긌', '긎', '긏', '긐',
-             '긑', '긒', '긓', '긕', '긖', '긗', '긘', '긙', '긚', '긛', '긜', '긝', '긞', '긟', '긠',
-             '긡', '긢', '긣', '긤', '긥', '긦', '긧', '긨', '긩', '긪', '긫', '긬', '긭', '긮', '긯',
-             '긲', '긳', '긵', '긶', '긹', '긻', '긼', '긽', '긾', '긿', '깂', '깄', '깇', '깈', '깉',
-             '깋', '깏', '깑', '깒', '깓', '깕', '깗', '깘', '깙', '깚', '깛', '깞', '깢', '깣', '뫃']
-        H = ['あ', 'い', 'う', 'え', 'お', 'ぁ', 'ぃ', 'ぅ', 'ぇ', 'ぉ', 'か', 'き', 'く', 'け', 'こ',
-             'が', 'ぎ', 'ぐ', 'げ', 'ご', 'さ', 'し', 'す', 'せ', 'そ', 'ざ', 'じ', 'ず', 'ぜ', 'ぞ',
-             'た', 'ち', 'つ', 'て', 'と', 'だ', 'ぢ', 'づ', 'で', 'ど', 'な', 'に', 'ぬ', 'ね', 'の',
-             'は', 'ひ', 'ふ', 'へ', 'ほ', 'ば', 'び', 'ぶ', 'べ', 'ぼ', 'ぱ', 'ぴ', 'ぷ', 'ぺ', 'ぽ',
-             'ま', 'み', 'む', 'め', 'も', 'や', 'ゆ', 'よ', 'ゃ', 'ゅ', 'ょ', 'ら', 'り', 'る', 'れ', 'ろ',
-             'わ', 'ゐ', 'ゑ', 'を', 'ん', 'っ', 'ゎ',
-             'ア', 'ィ', 'イ', 'ゥ', 'ウ', 'ェ', 'エ', 'ォ', 'オ', 'カ', 'ガ', 'キ', 'ギ', 'ク', 'グ',
-             'ケ', 'ゲ', 'コ', 'ゴ', 'サ', 'ザ', 'シ', 'ジ', 'ス', 'ズ', 'セ', 'ヂ', 'ッ', 'ツ', 'ヅ',
-             'テ', 'デ', 'ト', 'ド', 'ナ', 'ニ', 'ヌ', 'ネ', 'ノ', 'ハ', 'バ', 'パ', 'ヒ', 'ビ', 'ピ',
-             'フ', 'ブ', 'プ', 'ヘ', 'ベ', 'ペ', 'ホ', 'メ', 'モ', 'ャ', 'ヤ', 'ュ', 'ユ', 'ョ', 'ヨ',
-             'ラ', 'リ', 'ル', 'レ', 'ロ', 'ヮ', 'ワ', 'ヰ', 'ヱ', 'ヲ', 'ン', 'ヴ', 'ヵ', 'ヶ', '息']
+        strs = inputFp.read()
 
-        while True:
-            inStr = inFp.readline()
+        try:
+            #코덱 변환
+            if (select == "japanese to break"):
+                outputStr = self.myConvertCodec("shift-jis", "cp949", strs)
 
-            if not inStr:
-                break
+            elif (select == "break to japanese"):
+                outputStr = self.myConvertCodec("cp949", "shift-jis", strs)
 
-            for i in range(158):
-                inStr = inStr.replace(B[i], H[i])
+            # outputFp에 출력
+            outputFp.write(outputStr)
 
-            outFp.write(inStr)
+        except:
+            pass
 
+        inputFp.close()
+        outputFp.close()
 
+    # 코덱 변환 함수(fromCodec -> toCodec)
+    def myConvertCodec(self, fromCodec, toCodec, file) :
 
+        # fromCodec으로 인코딩
+        file = file.encode(fromCodec)
+
+        # toCodec으로 디코딩
+        convertedF = file.decode(toCodec)
+
+        return convertedF
 
 if __name__ == "__main__":
     import sys
