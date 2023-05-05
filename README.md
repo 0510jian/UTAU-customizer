@@ -1,2 +1,33 @@
 # UTAU-customizer
-The program that can modify UTAU voicebank and UST in various ways
+![캡처_2023_05_05_15_59_42_553](https://user-images.githubusercontent.com/124128448/236395084-b655ecca-56cc-4824-86b1-eabe2d7bf6fa.png)
+
+## 소개
+UTAU 음원과 UST 파일을 수정할 수 있는 프로그램입니다.
+
+## 사용법
+### 1. 노트 길이 수정
+![캡처_2023_05_05_16_04_32_939](https://user-images.githubusercontent.com/124128448/236395975-c83643c7-ea16-4321-ab03-5508299be047.png)
+1) 노트 길이를 수정할 UST를 선택합니다.
+2) 수정 후 저장될 파일명을 지정합니다.
+3) 수정하고 싶은 만큼 숫자를 입력합니다. (ex. 2 입력 -> 노트 길이가 2배가 됨)
+4) 생성 버튼을 누르면 프로그램과 동일한 경로에 새 UST(a2.ust)가 생성됩니다.
+
+### 2. 에일리어스 수정
+![캡처_2023_05_05_16_08_09_481](https://user-images.githubusercontent.com/124128448/236396427-142c316a-f0d2-4aae-bee1-c852237203d6.png)
+1) 에일리어스를 수정할 oto.ini를 선택합니다.
+2) 수정 후 저장될 파일명을 지정합니다.
+3) 생성/변경/삭제 중 원하는 것을 선택합니다
+4) 생성/변경/삭제에 원하는 값을 입력합니다
+5) 생성 버튼을 누르면 프로그램과 동일한 경로에 새 oto.ini(oto2.ini)가 생성됩니다.
+
+### 3-1. 일본어 <-> 뷁어 변경(파일명 변환)
+![캡처_2023_05_05_16_10_25_913](https://user-images.githubusercontent.com/124128448/236396821-368011e4-3734-4ea2-b898-fb7d4abaab8f.png)
+1) 파일명을 변환할 폴더를 선택합니다.
+2) 변경을 원하는 파일의 확장자를 지정합니다. (ex. wav/llsm -> wav와 llsm의 확장자를 가진 파일명이 변환됨)
+3) 원하는 변환 버튼을 누르면 지정한 폴더의 파일명이 변경됩니다.
+
+### 3-2. 일본어 <-> 뷁어 변경(oto.ini 변환)
+![캡처_2023_05_05_16_15_02_893](https://user-images.githubusercontent.com/124128448/236397581-dcb1715a-cc8c-4a89-b6c7-9f44abdc4e81.png)
+1) 변환할 oto.ini를 선택합니다.
+2) 변환 후 저장될 파일명을 지정합니다.
+3) 원하는 변환 버튼을 누르면 프로그램과 동일한 경로에 새 oto.ini(oto2.ini)가 생성됩니다.
